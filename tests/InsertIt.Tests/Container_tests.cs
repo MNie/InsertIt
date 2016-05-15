@@ -49,6 +49,18 @@ namespace InsertIt.Tests
             exc.ShouldNotBeNull();
             exc.ShouldBeOfType<ClassHasMultipleConstructorsException>();
         }
+
+        [Fact]
+        public void should_register_properly_with_concrete_dependencies()
+        {
+            _container = new Container(x =>
+            {
+                x.Record<ITest>().As<TestWithConcreteDependency>().Ctor<string>().Is("test");
+            });
+            var resolve = Act();
+            resolve.ShouldBeOfType<TestWithConcreteDependency>();
+            ((TestWithConcreteDependency)resolve).Name.ShouldBe("test");
+        }
     }
 
     
@@ -68,5 +80,15 @@ namespace InsertIt.Tests
     {
         public TestWithMultipleDependency(Dependency dependency, Dependency dependencySecond){ }
         public TestWithMultipleDependency(Dependency dependency) { }
+    }
+
+    internal class TestWithConcreteDependency : ITest
+    {
+        public string Name { get; set; }
+
+        public TestWithConcreteDependency(string name)
+        {
+            Name = name;
+        }
     }
 }
