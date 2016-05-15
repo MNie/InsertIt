@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace InsertIt
 {
@@ -30,11 +32,18 @@ namespace InsertIt
             }
         }
 
+        private static object Resolve(Type requestType)
+        {
+            var resolvedType = RegistredItems[requestType];
+            var ctors = resolvedType.GetTypeInfo().DeclaredConstructors;
+            var dependencies = ctors?.First().GetParameters().Select(x => Resolve(x.ParameterType)).ToArray();
+
+            return Activator.CreateInstance(resolvedType, dependencies);
+        }
+
         public TItem Resolve<TItem>()
         {
-            var requestType = typeof (TItem);
-            var resolvedType = RegistredItems[requestType];
-            return (TItem)Activator.CreateInstance(resolvedType);
+            return (TItem)Resolve(typeof(TItem));
         }
     }
 }

@@ -20,18 +20,28 @@ namespace InsertIt.Tests
             resolveSecond.ShouldBeOfType<Test>();
         }
 
+        [Fact]
+        public void should_register_properly_with_dependencies()
+        {
+            var container = new Container(x =>
+            {
+                x.Record<Dependency>().As<Dependency>();
+                x.Record<ITestWithDependency>().As<TestWithDependency>();
+            });
+            var resolve = container.Resolve<ITestWithDependency>();
+            resolve.ShouldBeOfType<TestWithDependency>();
+        }
     }
 
-    internal interface ITestFirst
-    {
-    }
+    internal interface ITestFirst {}
+    internal interface ITestSecond {}
+    internal interface ITestWithDependency { }
+    internal class Test : ITestFirst, ITestSecond {}
 
-    internal class Test : ITestFirst, ITestSecond
-    {
-    }
+    internal class Dependency {}
 
-    internal interface ITestSecond
+    internal class TestWithDependency : ITestWithDependency
     {
-        
+        public TestWithDependency(Dependency dependency) {}
     }
 }
