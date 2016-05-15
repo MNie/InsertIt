@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using InsertIt.Exceptions;
 
 namespace InsertIt
 {
@@ -35,7 +36,9 @@ namespace InsertIt
         private static object Resolve(Type requestType)
         {
             var resolvedType = RegistredItems[requestType];
-            var ctors = resolvedType.GetTypeInfo().DeclaredConstructors;
+            var ctors = resolvedType.GetTypeInfo().DeclaredConstructors.ToList();
+            if(ctors.Count() > 1)
+                throw new ClassHasMultipleConstructorsException(requestType);
             var dependencies = ctors?.First().GetParameters().Select(x => Resolve(x.ParameterType)).ToArray();
 
             return Activator.CreateInstance(resolvedType, dependencies);

@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using InsertIt.Exceptions;
+using Shouldly;
 using Xunit;
 
 namespace InsertIt.Tests
@@ -31,7 +32,21 @@ namespace InsertIt.Tests
             var resolve = container.Resolve<ITestWithDependency>();
             resolve.ShouldBeOfType<TestWithDependency>();
         }
+
+        [Fact]
+        public void should_fails_while_register_class_with_multiple_ctors()
+        {
+            var container = new Container(x =>
+            {
+                x.Record<TestWithMultipleDependency>().As<TestWithMultipleDependency>();
+            });
+            var exc = Record.Exception(() => container.Resolve<TestWithMultipleDependency>());
+            exc.ShouldNotBeNull();
+            exc.ShouldBeOfType<ClassHasMultipleConstructorsException>();
+        }
     }
+
+    
 
     internal interface ITestFirst {}
     internal interface ITestSecond {}
@@ -43,5 +58,11 @@ namespace InsertIt.Tests
     internal class TestWithDependency : ITestWithDependency
     {
         public TestWithDependency(Dependency dependency) {}
+    }
+
+    internal class TestWithMultipleDependency : ITestWithDependency
+    {
+        public TestWithMultipleDependency(Dependency dependency, Dependency dependencySecond){ }
+        public TestWithMultipleDependency(Dependency dependency) { }
     }
 }
