@@ -20,28 +20,28 @@ namespace InsertIt
 
         public class RegistredItem
         {
-            public Type Register { get; set; }
-            public Type Qua { get; set; }
+            private Type _register;
+            private Type _qua;
 
             public RegistredItem Record<TItem>()
             {
-                Register = typeof(TItem);
+                _register = typeof(TItem);
                 return this;
             }
 
             public RegistredItem As<TItem>()
             {
-                Qua = typeof (TItem);
-                RegistredItems.Add(Register, Qua);
-                CtorDictionary.Add(Register, null);
+                _qua = typeof (TItem);
+                RegistredItems.Add(_register, _qua);
+                CtorDictionary.Add(_register, null);
                 return this;
             }
 
             public RegistredItem Ctor<TItem>(TItem value)
             {
-                var values = CtorDictionary[Register] ?? new Dictionary<Type, object>();
+                var values = CtorDictionary[_register] ?? new Dictionary<Type, object>();
                 values.Add(typeof(TItem), value);
-                CtorDictionary[Register] = values;
+                CtorDictionary[_register] = values;
                 return this;
             }
         }
