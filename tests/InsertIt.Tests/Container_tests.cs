@@ -7,16 +7,21 @@ namespace InsertIt.Tests
     // ReSharper disable once InconsistentNaming
     public class Container_tests
     {
+        private Container _container;
+        ITest Act()
+        {
+            return _container.Resolve<ITest>();
+        }
         [Fact]
         public void should_register_properly()
         {
-            var container = new Container(x =>
+            _container = new Container(x =>
             {
-                x.Record<ITestFirst>().As<Test>();
+                x.Record<ITest>().As<Test>();
                 x.Record<ITestSecond>().As<Test>();
             });
-            var resolveFirst = container.Resolve<ITestFirst>();
-            var resolveSecond = container.Resolve<ITestSecond>();
+            var resolveFirst = Act();
+            var resolveSecond = _container.Resolve<ITestSecond>();
             resolveFirst.ShouldBeOfType<Test>();
             resolveSecond.ShouldBeOfType<Test>();
         }
@@ -24,23 +29,23 @@ namespace InsertIt.Tests
         [Fact]
         public void should_register_properly_with_dependencies()
         {
-            var container = new Container(x =>
+            _container = new Container(x =>
             {
                 x.Record<Dependency>().As<Dependency>();
-                x.Record<ITestWithDependency>().As<TestWithDependency>();
+                x.Record<ITest>().As<TestWithSingleDependency>();
             });
-            var resolve = container.Resolve<ITestWithDependency>();
-            resolve.ShouldBeOfType<TestWithDependency>();
+            var resolve = Act();
+            resolve.ShouldBeOfType<TestWithSingleDependency>();
         }
 
         [Fact]
         public void should_fails_while_register_class_with_multiple_ctors()
         {
-            var container = new Container(x =>
+            _container = new Container(x =>
             {
-                x.Record<TestWithMultipleDependency>().As<TestWithMultipleDependency>();
+                x.Record<ITest>().As<TestWithMultipleDependency>();
             });
-            var exc = Record.Exception(() => container.Resolve<TestWithMultipleDependency>());
+            var exc = Record.Exception(() => Act());
             exc.ShouldNotBeNull();
             exc.ShouldBeOfType<ClassHasMultipleConstructorsException>();
         }
@@ -48,19 +53,18 @@ namespace InsertIt.Tests
 
     
 
-    internal interface ITestFirst {}
+    internal interface ITest {}
     internal interface ITestSecond {}
-    internal interface ITestWithDependency { }
-    internal class Test : ITestFirst, ITestSecond {}
+    internal class Test : ITest, ITestSecond {}
 
     internal class Dependency {}
 
-    internal class TestWithDependency : ITestWithDependency
+    internal class TestWithSingleDependency : ITest
     {
-        public TestWithDependency(Dependency dependency) {}
+        public TestWithSingleDependency(Dependency dependency) {}
     }
 
-    internal class TestWithMultipleDependency : ITestWithDependency
+    internal class TestWithMultipleDependency : ITest
     {
         public TestWithMultipleDependency(Dependency dependency, Dependency dependencySecond){ }
         public TestWithMultipleDependency(Dependency dependency) { }

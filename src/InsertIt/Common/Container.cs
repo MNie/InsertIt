@@ -8,9 +8,10 @@ namespace InsertIt
 {
     public class Container
     {
-        private static readonly Dictionary<Type, Type> RegistredItems = new Dictionary<Type, Type>(); 
+        protected static Dictionary<Type, Type> RegistredItems; 
         public Container(Action<RegistredItem> action)
         {
+            RegistredItems = new Dictionary<Type, Type>();
             action.Invoke(new RegistredItem());
         }
 
