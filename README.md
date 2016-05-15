@@ -1,7 +1,7 @@
 <b>InsertIt</b> is a simple Dependency Injection library for Windows Phone.
 
-How to install <b>InsertIt</b>?
-Open Package Manager Console and write:
+How to install <b>InsertIt</b>?</br>
+<b>InsertIt</b> is a nuget package (<i>https://www.nuget.org/packages/InsertIt/</i>), so You can simply type following command in a  Package Manager Console:
 
     Install-Package InsertIt
 
