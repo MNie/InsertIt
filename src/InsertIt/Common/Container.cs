@@ -37,35 +37,14 @@ namespace InsertIt
                 return this;
             }
 
-            public ConcreteCtor<TItem> Ctor<TItem>()
+            public RegistredItem Ctor<TItem>(TItem value)
             {
-                return new ConcreteCtor<TItem>(Register, typeof(TItem), this);
+                var values = CtorDictionary[Register] ?? new Dictionary<Type, object>();
+                values.Add(typeof(TItem), value);
+                CtorDictionary[Register] = values;
+                return this;
             }
         }
-
-        public class ConcreteCtor<TItem>
-        {
-            public Type Ctor { get; set; }
-            public TItem Value { get; set; }
-            private readonly RegistredItem _this;
-            private readonly Type _key;
-
-            public ConcreteCtor(Type key, Type ctor, RegistredItem _this)
-            {
-                Ctor = ctor;
-                this._this = _this;
-                _key = key;
-            }
-
-            public RegistredItem Is(object value)
-            {
-                var values = CtorDictionary[_key] ?? new Dictionary<Type, object>();
-                values.Add(typeof(TItem), (TItem)value);
-                CtorDictionary[_key] = values;
-                return _this;
-            }
-        }
-
 
         private static object Resolve(Type requestType)
         {

@@ -8,7 +8,8 @@ namespace InsertIt.Tests
     public class Container_tests
     {
         private Container _container;
-        ITest Act()
+
+        private ITest Act()
         {
             return _container.Resolve<ITest>();
         }
@@ -55,11 +56,22 @@ namespace InsertIt.Tests
         {
             _container = new Container(x =>
             {
-                x.Record<ITest>().As<TestWithConcreteDependency>().Ctor<string>().Is("test");
+                x.Record<ITest>().As<TestWithConcreteDependency>().Ctor("test");
             });
             var resolve = Act();
             resolve.ShouldBeOfType<TestWithConcreteDependency>();
             ((TestWithConcreteDependency)resolve).Name.ShouldBe("test");
+        }
+
+        [Fact]
+        public void should_register_properly_with_typed_class()
+        {
+            _container = new Container(x =>
+            {
+                x.Record<ITypedTest<Test>>().As<TypedTest<Test>>();
+            });
+            var resolve = _container.Resolve<ITypedTest<Test>>();
+            resolve.ShouldBeOfType<TypedTest<Test>>();
         }
     }
 
@@ -91,4 +103,7 @@ namespace InsertIt.Tests
             Name = name;
         }
     }
+
+    internal interface ITypedTest<TItem> { }
+    internal class TypedTest<TItem> : ITypedTest<TItem> { }
 }
