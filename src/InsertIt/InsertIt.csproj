@@ -38,6 +38,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Container.cs" />
+    <Compile Include="Common\Interfaces\INotYetRegistred.cs" />
+    <Compile Include="Common\Interfaces\IPossibleToAddCtors.cs" />
+    <Compile Include="Common\Interfaces\IWantToRegisterItem.cs" />
     <Compile Include="Exceptions\ClassException.cs" />
     <Compile Include="Exceptions\ClassHasMultipleConstructorsException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

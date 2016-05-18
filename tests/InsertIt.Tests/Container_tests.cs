@@ -1,4 +1,5 @@
-﻿using InsertIt.Exceptions;
+﻿using InsertIt.Common;
+using InsertIt.Exceptions;
 using Shouldly;
 using Xunit;
 
