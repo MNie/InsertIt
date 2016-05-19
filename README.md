@@ -27,6 +27,13 @@ Register dependency with value for constructor arguments:
                 x.Record<IInterface>().As<ClassWithCtorWithArgs>().Ctor("test");
             });
             
+It is also possible to register dependency with ctor value based on reflection (ctor arg name) instead of ctor arg type as above.
+
+    _container = new Container(x =>
+            {
+                x.Record<IInterface>().As<ClassWithCtorWithArgs>().Ctor("ctorArgName", new Test());
+            });
+            
 How to get resolved dependecy?
 
     var resolve = _container.Resolve<IInterface>();
