@@ -11,11 +11,13 @@ namespace InsertIt.Common
     {
         protected static Dictionary<Type, Type> RegistredItems;
         protected static Dictionary<Type, Dictionary<Type, object>> CtorDictionary;
+        protected static Dictionary<Type, Dictionary<string, object>> ReflectedCtorDictionary;
 
         public Container(Action<IWantToRegisterItem> action)
         {
             RegistredItems = new Dictionary<Type, Type>();
             CtorDictionary = new Dictionary<Type, Dictionary<Type, object>>();
+            ReflectedCtorDictionary = new Dictionary<Type, Dictionary<string, object>>();
             action.Invoke(new RegistredItem());
         }
 
@@ -35,6 +37,7 @@ namespace InsertIt.Common
                 _qua = typeof (TItem);
                 RegistredItems.Add(_register, _qua);
                 CtorDictionary.Add(_register, null);
+                ReflectedCtorDictionary.Add(_register, null);
                 return this;
             }
 
@@ -43,6 +46,14 @@ namespace InsertIt.Common
                 var values = CtorDictionary[_register] ?? new Dictionary<Type, object>();
                 values.Add(typeof(TItem), value);
                 CtorDictionary[_register] = values;
+                return this;
+            }
+
+            public IPossibleToAddCtors Ctor<TItem>(string argName, TItem value)
+            {
+                var values = ReflectedCtorDictionary[_register] ?? new Dictionary<string, object>();
+                values.Add(argName, value);
+                ReflectedCtorDictionary[_register] = values;
                 return this;
             }
         }
@@ -54,19 +65,25 @@ namespace InsertIt.Common
             if(ctors.Count() > 1)
                 throw new ClassHasMultipleConstructorsException(requestType);
             var ctorParameters = CtorDictionary[requestType];
+            var reflectedCtorParameters = ReflectedCtorDictionary[requestType];
             var dependencies = ctors?
                 .First()
                 .GetParameters()
-                .Select(x =>
-                {
-                    if (ctorParameters == null) return Resolve(x.ParameterType);
-                    return ctorParameters.ContainsKey(x.ParameterType) ?
-                        ctorParameters[x.ParameterType] :
-                        Resolve(x.ParameterType);
-                })
+                .Select(x => ctorParameters == null && reflectedCtorParameters == null ? Resolve(x.ParameterType) : ResolveIfItsSetByCtor(ctorParameters, reflectedCtorParameters, x))
                 .ToArray();
 
             return Activator.CreateInstance(resolvedType, dependencies);
+        }
+
+        private static object ResolveIfItsSetByCtor(IReadOnlyDictionary<Type, object> ctorParameters, IReadOnlyDictionary<string, object> reflectedCtorParameters, ParameterInfo x)
+        {
+            if(reflectedCtorParameters != null)
+                if (reflectedCtorParameters.ContainsKey(x.Name))
+                    return reflectedCtorParameters[x.Name];
+            if(ctorParameters != null)
+                if (ctorParameters.ContainsKey(x.ParameterType))
+                    return ctorParameters[x.ParameterType];
+            return Resolve(x.ParameterType);
         }
 
         public TItem Resolve<TItem>()

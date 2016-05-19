@@ -65,6 +65,22 @@ namespace InsertIt.Tests
         }
 
         [Fact]
+        public void should_register_properly_using_reflection_concrete_dependencies_for_ctors()
+        {
+            var test = new Test();
+            _container = new Container(x =>
+            {
+                x.Record<ITest>().As<TestWithReflectionCtor>().Ctor("dependencyFirst", "dd").Ctor<ITest>("dependencySecond", test);
+            });
+            var resolve = Act();
+            resolve.ShouldBeOfType<TestWithReflectionCtor>();
+            ((TestWithReflectionCtor) resolve).Test.ShouldBeOfType<Test>();
+            ((TestWithReflectionCtor) resolve).Test.ShouldBeSameAs(test);
+            ((TestWithReflectionCtor) resolve).Text.ShouldBeOfType<string>();
+            ((TestWithReflectionCtor) resolve).Text.ShouldBeSameAs("dd");
+        }
+
+        [Fact]
         public void should_register_properly_with_typed_class()
         {
             _container = new Container(x =>
@@ -107,4 +123,16 @@ namespace InsertIt.Tests
 
     internal interface ITypedTest<TItem> { }
     internal class TypedTest<TItem> : ITypedTest<TItem> { }
+
+    internal class TestWithReflectionCtor : ITest
+    {
+        public readonly string Text;
+        public readonly ITest Test;
+
+        public TestWithReflectionCtor(string dependencyFirst, ITest dependencySecond)
+        {
+            Text = dependencyFirst;
+            Test = dependencySecond;
+        }
+    }
 }
