@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/MNie/InsertIt.svg?branch=master)](https://travis-ci.org/MNie/InsertIt)
+
 <b>InsertIt</b> is a simple Dependency Injection library for Windows Phone.
 
 How to install <b>InsertIt</b>?</br>
